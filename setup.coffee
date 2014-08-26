@@ -40,7 +40,7 @@ createOrdrinAddress = (createAccount, asyncCb) ->
         email: createAccount.email
         current_password: createAccount.password
         nick: 'groupLocation'
-        addr: result.address
+        addr: result['street address']
         city: result.city
         state: result.state
         zip: result.zip
