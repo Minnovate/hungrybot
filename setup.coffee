@@ -35,7 +35,7 @@ createOrdrinAccount = (asyncCb) ->
       )
 
 createOrdrinAddress = (createAccount, asyncCb) ->
-    prompt.get ['address', 'city', 'state', 'zip', 'phone'], (err, result) ->
+    prompt.get ['street address', 'city', 'state', 'zip', 'phone'], (err, result) ->
       ordrinApi.create_addr(
         email: createAccount.email
         current_password: createAccount.password
