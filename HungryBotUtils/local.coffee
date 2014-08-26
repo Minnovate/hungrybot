@@ -10,6 +10,7 @@ listeners =
   randomItem: [/suggest something/i]
   confirm: [/(.*)\byes\b(.*)/i, /sure$/i, /yea$/i, /yep$/i]
   decline: [/(.*)\bno\b(.*)/i]
+  cancelOrder: [/cancel order/i]
   placeOrder: [/place order/i]
   displayOrders: [/show orders$/i]
 
@@ -35,6 +36,7 @@ getResponse = (response, params) ->
     keepListeningForOrders: "It's all good. I'll keep listening for orders!"
     placingOrder: "Placing order. Please wait for me to confirm that everything was correct."
     orderError: "Sorry guys! We messed up: #{params.err}"
+    cancellingOrder: "Cancelled the current order."
     orderPlaced: "Order placed: #{params.msg}"
 
   return responses[response]
