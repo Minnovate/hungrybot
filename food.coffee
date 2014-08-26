@@ -89,6 +89,13 @@ module.exports = (robot) ->
             msg.send local.getResponse('chooseRestaurant', restaurantsDisplay: restaurantsDisplay)
             HUBOT_APP.state = 2
 
+    cancelOrder: (msg) ->
+      username = msg.message.user.name
+      if username is HUBOT_APP.leader
+        msg.send local.getResponse 'cancellingOrder', {}
+        HUBOT_APP = {}
+        HUBOT_APP.state = 1 #1-listening, 2-Selecting a restaurant 3-gathering orders 4-verify order 5-Placing order
+
     # Displays more options for restaurant or item selection.
     more: (msg) ->
       user = msg.message.user.name
