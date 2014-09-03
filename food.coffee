@@ -199,6 +199,7 @@ module.exports = (robot) ->
             restaurantName: restaurant.na,
             leader: HUBOT_APP.leader
             cuisineText: cuisineText
+            mino: restaurant.mino
           HUBOT_APP.rid = "#{restaurant.id}"
           HUBOT_APP.state = 3
 
@@ -320,7 +321,17 @@ module.exports = (robot) ->
     placeOrder: (msg) ->
       username = msg.message.user.name
       if HUBOT_APP.state is 4 and username is HUBOT_APP.leader
+
+        traySubtotal = 0
+        _.each HUBOT_APP.users, (user) ->
+          for order in user.orders
+            traySubtotal += parseFloat(order.price)
+
+        HUBOT_APP.subtotal = traySubtotal
+
         msg.send "How much would you like to tip? Please enter in the format '#.##' or as a percentage '##%'"
+        msg.send "10% - #{(traySubtotal*.10).toFixed(2)}, 15% - #{(traySubtotal*.15).toFixed(2)}, 20% - #{(traySubtotal*.2).toFixed(2)}"
+
         HUBOT_APP.state = 6
 
     # Everything is finished, and the order can be placed.
@@ -355,16 +366,14 @@ module.exports = (robot) ->
       username = msg.message.user.name
       if HUBOT_APP.state is 6 and username is HUBOT_APP.leader
         tipPercentage = msg.match[1]
-        traySubtotal = 0
 
         # confirm and place order
         tray = ''
         _.each HUBOT_APP.users, (user) ->
           for order in user.orders
             tray += "+#{order.tray}"
-            traySubtotal += parseFloat(order.price)
 
-        tip = traySubtotal * parseInt(tipPercentage) / 100
+        tip = HUBOT_APP.subtotal * parseInt(tipPercentage) / 100
         tip = tip.toFixed(2)
 
         params =
