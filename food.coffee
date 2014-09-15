@@ -27,6 +27,28 @@ module.exports = (robot) ->
   HUBOT_APP = {}
   HUBOT_APP.state = 1 #1-listening, 2-Selecting a restaurant 3-gathering orders 4-verify order 5-Placing order
 
+  submitOrder = (msg, tip) ->
+    tray = ''
+    _.each HUBOT_APP.users, (user) ->
+      for order in user.orders
+        tray += "+#{order.tray}"
+
+    params =
+      rid: HUBOT_APP.rid
+      tray: tray.substring(1)
+      tip: tip
+
+    msg.send local.getResponse 'placingOrder', {}
+    HUBOT_APP.state = 5
+    orderUtils.placeOrder params, (err, data) ->
+      if err
+        console.log err
+        msg.send local.getResponse('orderError', err: err.body._msg)
+        HUBOT_APP.state = 1
+      
+      msg.send local.getResponse('orderPlaced', msg: data.msg)
+      HUBOT_APP.state = 1
+
   # Set the initial state of the order.
   initialize = () ->
     # Set the HUBOT_APP to its initial state
@@ -334,63 +356,23 @@ module.exports = (robot) ->
 
         HUBOT_APP.state = 6
 
-    # Everything is finished, and the order can be placed.
+    # get tip as percentage
+    tipPercentage: (msg) ->
+      username = msg.message.user.name
+      if HUBOT_APP.state is 6 and username is HUBOT_APP.leader
+        tipPercentage = msg.match[1]
+        tip = HUBOT_APP.subtotal * parseInt(tipPercentage) / 100
+        tip = tip.toFixed(2)
+
+        submitOrder(msg, tip)
+
+    # get tip as exact amount
     tipTotal: (msg) ->
       username = msg.message.user.name
       if HUBOT_APP.state is 6 and username is HUBOT_APP.leader
         tip = msg.match[0].substring(msg.robot.name.length).trim()
 
-        # confirm and place order
-        tray = ''
-        _.each HUBOT_APP.users, (user) ->
-          for order in user.orders
-            tray += "+#{order.tray}"
-
-        params =
-          rid: HUBOT_APP.rid
-          tray: tray.substring(1)
-          tip: tip
-
-        msg.send local.getResponse 'placingOrder', {}
-        HUBOT_APP.state = 5
-        orderUtils.placeOrder params, (err, data) ->
-          if err
-            console.log err
-            msg.send local.getResponse('orderError', err: err.body._msg)
-            HUBOT_APP.state = 1
-            return err
-          msg.send local.getResponse('orderPlaced', msg: data.msg)
-          HUBOT_APP.state = 1
-
-    tipPercentage: (msg) ->
-      username = msg.message.user.name
-      if HUBOT_APP.state is 6 and username is HUBOT_APP.leader
-        tipPercentage = msg.match[1]
-
-        # confirm and place order
-        tray = ''
-        _.each HUBOT_APP.users, (user) ->
-          for order in user.orders
-            tray += "+#{order.tray}"
-
-        tip = HUBOT_APP.subtotal * parseInt(tipPercentage) / 100
-        tip = tip.toFixed(2)
-
-        params =
-          rid: HUBOT_APP.rid
-          tray: tray.substring(1)
-          tip: tip
-
-        msg.send local.getResponse 'placingOrder', {}
-        HUBOT_APP.state = 5
-        orderUtils.placeOrder params, (err, data) ->
-          if err
-            console.log err
-            msg.send local.getResponse('orderError', err: err.body._msg)
-            HUBOT_APP.state = 1
-            return err
-          msg.send local.getResponse('orderPlaced', msg: data.msg)
-          HUBOT_APP.state = 1
+        submitOrder(msg, tip)
 
     # Display orders for each user.
     displayOrders: (msg) ->
