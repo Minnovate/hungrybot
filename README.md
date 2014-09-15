@@ -136,15 +136,21 @@ Now your food is on its way! (Assuming you entered all of the correct delivery i
 
 Any user may exit the order at any time by responding to the bot saying "I'm out"
 This will delete any items added to the order from that user.
-
 ```
 user: foodbot I'm out
 
 foodbot: I'm sorry to hear that. Looks like user won't be joining us.
+``` 
+
+If you want to completely cancel an order, the leader can use "cancel order"
+```
+user (leader): foodbot cancel order
+
+foodbot: Cancelled the current order
 ```
 
-You may also ask to see what everyone is currently ordering at any given time by asking the bot like this:
 
+You may also ask to see what everyone is currently ordering at any given time by asking the bot like this:
 ```
 sagnew: foodbot show orders
 
