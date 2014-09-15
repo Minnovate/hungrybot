@@ -27,27 +27,68 @@ module.exports = (robot) ->
   HUBOT_APP = {}
   HUBOT_APP.state = 1 #1-listening, 2-Selecting a restaurant 3-gathering orders 4-verify order 5-Placing order
 
+  #actually submit the order request 
   submitOrder = (msg, tip) ->
+    HUBOT_APP.tip = tip
+
     tray = ''
+    traySubtotal = 0.00
+
     _.each HUBOT_APP.users, (user) ->
       for order in user.orders
         tray += "+#{order.tray}"
+        traySubtotal += parseFloat(order.price)
+        HUBOT_APP.subtotal = traySubtotal
 
-    params =
-      rid: HUBOT_APP.rid
-      tray: tray.substring(1)
-      tip: tip
-
-    msg.send local.getResponse 'placingOrder', {}
-    HUBOT_APP.state = 5
-    orderUtils.placeOrder params, (err, data) ->
+    orderUtils.get_saved_addr (err, addr) ->
       if err
         console.log err
-        msg.send local.getResponse('orderError', err: err.body._msg)
-        HUBOT_APP.state = 1
+        return err
       
-      msg.send local.getResponse('orderPlaced', msg: data.msg)
-      HUBOT_APP.state = 1
+      feeParams =
+        rid: HUBOT_APP.rid
+        subtotal: traySubtotal.toFixed(2)
+        tip: tip
+        datetime: 'ASAP'
+        addr: addr.addr
+        city: addr.city
+        zip: addr.zip
+
+      orderUtils.fee feeParams, (err, data) ->
+        if err
+          console.log err
+          return err
+        HUBOT_APP.tax = data.tax
+        HUBOT_APP.fee = data.fee
+
+        params =
+          rid: HUBOT_APP.rid
+          tray: tray.substring(1)
+          tip: tip
+
+        msg.send local.getResponse 'placingOrder', {}
+        HUBOT_APP.state = 5
+        orderUtils.placeOrder params, (err, data) ->
+          if err
+            console.log err
+            msg.send local.getResponse('orderError', err: err.body._msg)
+            HUBOT_APP.state = 1
+          
+          msg.send local.getResponse('orderPlaced', msg: generateReceipt())
+          HUBOT_APP.state = 1
+
+  generateReceipt = () ->
+    receipt = " Sucess!\n"
+    for name,data of HUBOT_APP.users
+      receipt += "#{name} ordered...\n"
+      user_subtotal = 0.00
+      for item in data.orders
+        receipt += "#{item.name} - $#{item.price}\n"
+        user_subtotal += parseFloat(item.price)
+      user_total = user_subtotal + (user_subtotal/HUBOT_APP.subtotal)*(parseFloat(HUBOT_APP.fee) + parseFloat(HUBOT_APP.tip) + parseFloat(HUBOT_APP.tax))
+      receipt += "Total with tip/tax : $#{user_total}"
+       
+    return receipt
 
   # Set the initial state of the order.
   initialize = () ->

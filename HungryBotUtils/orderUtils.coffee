@@ -21,6 +21,20 @@ servers.PRODUCTION =
 
 ordrinApi = new ordrin.APIs "0000000000000000000", servers.PRODUCTION
 
+get_saved_addr = (cb) ->
+  ordrinApi.get_saved_addr
+    email: email
+    current_password: password
+    nick: 'groupLocation'
+    (err, result) ->
+      if err
+        console.log err
+        return cb(err)
+      return cb(null, result)
+
+fee = (params, cb) ->
+  ordrinApi.fee params, cb
+
 placeOrder = (params, cb) ->
   options =
     'rid': params.rid
@@ -138,6 +152,8 @@ getUniqueList = (size, cb) ->
       )
 
 module.exports =
+  fee: fee
+  get_saved_addr: get_saved_addr
   placeOrder: placeOrder
   getRelevantMenuItems: getRelevantMenuItems
   getRelevantRestaurants: getRelevantRestaurants
