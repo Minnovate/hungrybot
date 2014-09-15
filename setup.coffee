@@ -52,12 +52,13 @@ createOrdrinAccount = (asyncCb) ->
 
 createOrdrinAddress = (createAccount, asyncCb) ->
     console.log "Please enter the address hungrybot will be delivering to."
-    prompt.get ['street address', 'city', 'state', 'zip', 'phone'], (err, result) ->
+    prompt.get ['street address', 'street address 2', 'city', 'state', 'zip', 'phone'], (err, result) ->
       ordrinApi.create_addr(
         email: createAccount.email
         current_password: createAccount.password
         nick: 'groupLocation'
         addr: result['street address']
+        addr2: result['street address 2']
         city: result.city
         state: result.state
         zip: result.zip
