@@ -100,11 +100,13 @@ getUniqueList = (size, cb) ->
             return cb err
 
           #remove rests that are not currently delivering
-          for i in rest_list.length by 1
-            if not rest_list[i].is_delivering
-              rest_list = rest_list.splice(i, 1)
-              i--
-
+          rest_list = _.filter(rest_list, (item) ->
+            if item.is_delivering is 0
+              return 0
+            else
+              return 1
+          )
+          
           unique_list = []
           cuisines = []
 
