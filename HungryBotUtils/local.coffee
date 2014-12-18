@@ -36,7 +36,7 @@ getResponse = (response, params) ->
     userWantsMore: "Well, #{params.username} what DO you want then?"
     keepListeningForOrders: "It's all good. I'll keep listening for orders!"
     placingOrder: "Placing order. Please wait for me to confirm that everything was correct."
-    orderError: "Sorry guys! We messed up: #{params.err}"
+    orderError: "Sorry! We messed up: #{params.err}"
     cancellingOrder: "Cancelled the current order."
     orderPlaced: "Order placed: #{params.msg}"
 
