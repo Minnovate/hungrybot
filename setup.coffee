@@ -48,7 +48,17 @@ createOrdrinAccount = (asyncCb) ->
           prompt.get ['email', {name: 'password', hidden:true}], (err, result) ->
             if err
               asyncCb err
-            asyncCb(null, result)
+            ordrinApi.get_account_info(
+              email: result.email
+              current_password: result.password,
+              (err, data) ->
+                if err 
+                  console.log "Sorry there was a problem with the data you entered. Try again."
+                  console.log err
+                  return createOrdrinAccount(asyncCb)
+                console.log "Login Succesful"
+                asyncCb(null, result)
+            )
 
 createOrdrinAddress = (createAccount, asyncCb) ->
     console.log "Please enter the address hungrybot will be delivering to."
