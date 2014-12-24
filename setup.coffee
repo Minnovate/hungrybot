@@ -56,7 +56,7 @@ createOrdrinAccount = (asyncCb) ->
                   console.log "Sorry there was a problem with the data you entered. Try again."
                   console.log err
                   return createOrdrinAccount(asyncCb)
-                console.log "Login Succesful"
+                console.log "Login succesful"
                 asyncCb(null, result)
             )
 
