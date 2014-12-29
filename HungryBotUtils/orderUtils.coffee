@@ -98,7 +98,7 @@ getUniqueList = (size, cb) ->
           if err
             console.log err
             return cb err
-
+  
           #remove rests that are not currently delivering
           for i in rest_list.length by 1
             if not rest_list[i].is_delivering
@@ -108,29 +108,24 @@ getUniqueList = (size, cb) ->
           unique_list = []
           cuisines = []
 
-          for i in [1..size] by 1
-            if(rest_list.length == 0)
-              break
+          while rest_list.length != 0 and unique_list.length < size
 
-            # add rest whose cuisine is not yet listed
             random_i = Math.floor(Math.random() * rest_list.length)
 
             found = false
-            while !found and rest_list.length > 0
-              if(!rest_list[random_i].cu)
-                rest_list.splice random_i, 1
-                break
+            
+            if(!rest_list[random_i].cu)
+              rest_list.splice random_i, 1
 
-              for cuisine in rest_list[random_i].cu
-                if((cuisines.indexOf cuisine) == -1)
-                  unique_list.push rest_list[random_i]
-                  cuisines = cuisines.concat rest_list[random_i].cu
-                  found = true
-                  rest_list.splice random_i, 1
-                  break
-
-              if not found
+            for cuisine in rest_list[random_i].cu
+              if((cuisines.indexOf cuisine) == -1)
+                unique_list.push rest_list[random_i]
+                cuisines = cuisines.concat rest_list[random_i].cu
+                found = true
                 rest_list.splice random_i, 1
+
+            if not found
+              rest_list.splice random_i, 1
 
           cb null, unique_list
       )
