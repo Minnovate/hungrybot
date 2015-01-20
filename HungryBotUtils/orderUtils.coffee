@@ -108,24 +108,18 @@ getUniqueList = (size, cb) ->
           unique_list = []
           cuisines = []
 
-          while rest_list.length != 0 and unique_list.length < size
+          while rest_list.length isnt 0 and unique_list.length < size
 
             random_i = Math.floor(Math.random() * rest_list.length)
 
-            found = false
-            
-            if(!rest_list[random_i].cu)
-              rest_list.splice random_i, 1
+            if rest_list[random_i].cu
+              for cuisine in rest_list[random_i].cu
+                if((cuisines.indexOf cuisine) is -1)
+                  unique_list.push rest_list[random_i]
+                  cuisines = cuisines.concat rest_list[random_i].cu
+                  break
 
-            for cuisine in rest_list[random_i].cu
-              if((cuisines.indexOf cuisine) == -1)
-                unique_list.push rest_list[random_i]
-                cuisines = cuisines.concat rest_list[random_i].cu
-                found = true
-                rest_list.splice random_i, 1
-
-            if not found
-              rest_list.splice random_i, 1
+            rest_list.splice random_i, 1
 
           cb null, unique_list
       )
